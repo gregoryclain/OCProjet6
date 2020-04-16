@@ -15,8 +15,10 @@ app.use((req, res, next) => {
 const dbPass = process.env.DB_PASSWORD;
 const dbUrl = process.env.DB_URL;
 const dbUser = process.env.DB_USER;
+const dbName = process.env.DB_NAME;
+const mongoCredentials = "mongodb+srv://" + dbUser + ":" + dbPass + dbUrl + dbName;
 mongoose
-  .connect("mongodb+srv://" + dbUser + ":" + dbPass + dbUrl, {
+  .connect(mongoCredentials, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -27,10 +29,10 @@ app.use(bodyParser.json());
 
 // import des routes
 // const siteRoutes = require("./routes/site");
-const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 
 // ajout des routes dans l'app
 // app.use("/api/site", siteRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
