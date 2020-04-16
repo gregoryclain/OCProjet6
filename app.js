@@ -27,8 +27,10 @@ app.use(bodyParser.json());
 
 // import des routes
 // const siteRoutes = require("./routes/site");
+const authRoutes = require("./routes/auth");
 
 // ajout des routes dans l'app
 // app.use("/api/site", siteRoutes);
+app.use("/api/auth", authRoutes);
 
 module.exports = app;
