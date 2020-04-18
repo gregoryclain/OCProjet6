@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const app = express();
+const path = require("path");
 
 // gestion cors
 app.use((req, res, next) => {
@@ -26,13 +27,14 @@ mongoose
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use(bodyParser.json());
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // import des routes
-// const siteRoutes = require("./routes/site");
 const userRoutes = require("./routes/user");
+const sauceRoutes = require("./routes/sauce");
 
 // ajout des routes dans l'app
-// app.use("/api/site", siteRoutes);
 app.use("/api/auth", userRoutes);
+app.use("/api/sauces", sauceRoutes);
 
 module.exports = app;
