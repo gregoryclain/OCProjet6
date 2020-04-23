@@ -4,6 +4,10 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 
+// fix pour use mongdb driver instead moongoose - Sinon cela affiche warning mongoose
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
+
 // gestion cors
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
