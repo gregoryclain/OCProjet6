@@ -31,7 +31,8 @@ mongoose
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use(bodyParser.json());
-app.use("/images", express.static(path.join(__dirname, "images")));
+// app.use(express.urlencoded({ extended: true, limit: "2b" }));
+app.use("/images", express.static(path.join(__dirname, "images"))); // définition du répertoire statique d'upload d'images
 
 // import des routes
 const userRoutes = require("./routes/user");

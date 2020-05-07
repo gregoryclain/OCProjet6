@@ -22,17 +22,22 @@ exports.list = (req, res, next) => {
 
 // create sauce
 exports.create = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce);
-  const sauce = new Sauce({
-    ...sauceObject,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-    likes: 0,
-    dislikes: 0,
-  });
-  sauce
-    .save()
-    .then(() => res.status(201).json({ message: "La sauce a été ajouté !" }))
-    .catch((error) => res.status(400).json({ error }));
+  // limitation du poids de l'image à 1500 ko pour l'exemple
+  if (req.file.size > 1500000) {
+    res.status(400).json({ message: "le fichier est trop volumineux" });
+  } else {
+    const sauceObject = JSON.parse(req.body.sauce);
+    const sauce = new Sauce({
+      ...sauceObject,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      likes: 0,
+      dislikes: 0,
+    });
+    sauce
+      .save()
+      .then(() => res.status(201).json({ message: "La sauce a été ajouté !" }))
+      .catch((error) => res.status(400).json({ error }));
+  }
 };
 
 // show sauce
@@ -51,6 +56,8 @@ exports.like = (req, res, next) => {
   Sauce.findOne({ _id: sauceID }).then((sauce) => {
     let isInLikes = sauce.usersliked.includes(userId);
     let isInDisLikes = sauce.usersdisliked.includes(userId);
+    console.log("isInLikes", isInLikes);
+    console.log("isInDisLikes", isInDisLikes);
 
     switch (like) {
       case 0:
@@ -87,6 +94,17 @@ exports.like = (req, res, next) => {
             }
           });
         }
+
+        // on annule le dislike et on enleveve du tableau usersdisliked
+        if (isInDisLikes) {
+          sauce.usersdisliked.forEach((id, index) => {
+            if (id == userId) {
+              sauce.usersdisliked.splice(index, 1);
+              sauce.dislikes--;
+            }
+          });
+        }
+
         // ajout dans tableau usersdisliked seulement s'il n'est pas dans tableau
         if (!isInDisLikes) {
           sauce.usersdisliked.push(userId);
@@ -102,6 +120,16 @@ exports.like = (req, res, next) => {
             if (id == userId) {
               sauce.usersdisliked.splice(index, 1);
               sauce.dislikes--;
+            }
+          });
+        }
+
+        // on annule le like et on enleve du tableau usersliked
+        if (isInLikes) {
+          sauce.usersliked.forEach((id, index) => {
+            if (id == userId) {
+              sauce.usersliked.splice(index, 1);
+              sauce.likes--;
             }
           });
         }
@@ -136,8 +164,13 @@ exports.delete = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-  const sauceObject = req.file ? { ...JSON.parse(req.body.sauce), imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}` } : { ...req.body }; //ternaire
-  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-    .then(() => res.status(200).json({ message: "Objet modifié !" }))
-    .catch((error) => res.status(400).json({ error }));
+  // limitation du poids de l'image à 1500 ko pour l'exemple
+  if (req.file.size > 1500000) {
+    res.status(400).json({ message: "le fichier est trop volumineux" });
+  } else {
+    const sauceObject = req.file ? { ...JSON.parse(req.body.sauce), imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}` } : { ...req.body }; //ternaire
+    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+      .then(() => res.status(200).json({ message: "Objet modifié !" }))
+      .catch((error) => res.status(400).json({ error }));
+  }
 };
