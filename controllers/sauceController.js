@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const Sauce = require("../models/sauce");
 let multer = require("multer");
-let upload = multer();
+// let upload = multer();
+const sharp = require("sharp");
+const path = require("path");
 
 // liste des sauces
 exports.list = (req, res, next) => {
@@ -22,14 +24,16 @@ exports.list = (req, res, next) => {
 
 // create sauce
 exports.create = (req, res, next) => {
-  // limitation du poids de l'image à 1500 ko pour l'exemple
-  if (req.file.size > 1500000) {
+  // limitation du poids de l'image à 5mo pour l'exemple
+  if (req.file.size > 5000000) {
     res.status(400).json({ message: "le fichier est trop volumineux" });
   } else {
+    const { filename: image } = req.file;
+    sharp(req.file.path).resize(500).jpeg({ quality: 50 }).toFile(path.resolve(req.file.destination, "resized", image)); // ok
     const sauceObject = JSON.parse(req.body.sauce);
     const sauce = new Sauce({
       ...sauceObject,
-      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${req.file.filename}`,
       likes: 0,
       dislikes: 0,
     });
@@ -164,11 +168,16 @@ exports.delete = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-  // limitation du poids de l'image à 1500 ko pour l'exemple
-  if (req.file.size > 1500000) {
+  // limitation du poids de l'image à 5Mo pour l'exemple
+  console.log(req.file);
+  if (req.file.size > 5000000) {
     res.status(400).json({ message: "le fichier est trop volumineux" });
   } else {
-    const sauceObject = req.file ? { ...JSON.parse(req.body.sauce), imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}` } : { ...req.body }; //ternaire
+    const { filename: image } = req.file;
+    sharp(req.file.path).resize(500).jpeg({ quality: 50 }).toFile(path.resolve(req.file.destination, "resized", image)); // ok
+    // fs.unlinkSync(req.file.path);
+
+    const sauceObject = req.file ? { ...JSON.parse(req.body.sauce), imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${req.file.filename}` } : { ...req.body }; //ternaire
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
       .then(() => res.status(200).json({ message: "Objet modifié !" }))
       .catch((error) => res.status(400).json({ error }));
