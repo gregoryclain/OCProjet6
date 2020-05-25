@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
+  // console.log("req.connection.remoteAddress", req.connection.remoteAddress);
+  // var ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress || req.socket.remoteAddress || (req.connection.socket ? req.connection.socket.remoteAddress : null);
+
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
