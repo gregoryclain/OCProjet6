@@ -4,19 +4,6 @@ const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 
-// const redis = require("redis");
-// const client = redis.createClient();
-// var client = require("redis").createClient();
-// var limiter = require("express-limiter")(app, client);
-// limiter({
-//   path: "/login",
-//   method: "post",
-//   lookup: ["connection.remoteAddress"],
-//   // 150 requests per hour
-//   total: 150,
-//   expire: 1000 * 60 * 60,
-// });
-
 // fix pour use mongdb driver instead moongoose - Sinon cela affiche warning mongoose
 mongoose.set("useFindAndModify", false);
 mongoose.set("useCreateIndex", true);
