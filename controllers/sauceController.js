@@ -169,12 +169,15 @@ exports.delete = (req, res, next) => {
 
 exports.modifySauce = (req, res, next) => {
   // limitation du poids de l'image à 5Mo pour l'exemple
-  console.log(req.file);
-  if (req.file.size > 5000000) {
+  // console.log(req.file);
+  if (req.file && req.file.size > 5000000) {
     res.status(400).json({ message: "le fichier est trop volumineux" });
   } else {
-    const { filename: image } = req.file;
-    sharp(req.file.path).resize(500).jpeg({ quality: 50 }).toFile(path.resolve(req.file.destination, "resized", image)); // ok
+    if (req.file) {
+      const { filename: image } = req.file;
+      sharp(req.file.path).resize(500).jpeg({ quality: 50 }).toFile(path.resolve(req.file.destination, "resized", image)); // ok
+    }
+
     // fs.unlinkSync(req.file.path);
 
     const sauceObject = req.file ? { ...JSON.parse(req.body.sauce), imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${req.file.filename}` } : { ...req.body }; //ternaire
